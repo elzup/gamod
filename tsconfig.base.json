@@ -1,0 +1,11 @@
+{
+  "extends": "@elzup/tsconfig",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "node",
+    "target": "es2022",
+    "lib": ["es2022"],
+    "declaration": false,
+    "types": ["vitest/globals"]
+  }
+}

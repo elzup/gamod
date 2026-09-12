@@ -1,0 +1,38 @@
+{
+  "name": "gamod",
+  "private": true,
+  "type": "module",
+  "description": "Best-move solvers for games, one package per game",
+  "author": "elzup",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:cov": "vitest run --coverage",
+    "format": "biome format .",
+    "format:fix": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "typecheck": "pnpm -r typecheck",
+    "demo": "pnpm --filter @gamod/demo dev"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.10",
+    "@elzup/tsconfig": "1.1.0",
+    "@types/node": "24.12.0",
+    "@vitest/coverage-v8": "^4.0.15",
+    "rimraf": "^6.1.2",
+    "typescript": "5.9.3",
+    "vitest": "^4.0.15"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}
