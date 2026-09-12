@@ -1,0 +1,51 @@
+{
+  "name": "@gamod/tic-tac-toe",
+  "version": "0.0.0",
+  "description": "Exact best-move solver for tic-tac-toe",
+  "author": "elzup",
+  "license": "MIT",
+  "type": "module",
+  "main": "lib/cjs/index.js",
+  "module": "lib/esm/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "import": "./lib/esm/index.js",
+      "require": "./lib/cjs/index.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elzup/gamod.git",
+    "directory": "packages/tic-tac-toe"
+  },
+  "bugs": {
+    "url": "https://github.com/elzup/gamod/issues"
+  },
+  "homepage": "https://github.com/elzup/gamod/tree/main/packages/tic-tac-toe#readme",
+  "keywords": [
+    "game",
+    "solver",
+    "tic-tac-toe",
+    "minimax"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "clean": "rimraf lib",
+    "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
+    "build:cjs": "tsc --module commonjs --moduleResolution node --outDir lib/cjs && echo '{\"type\": \"commonjs\"}' > lib/cjs/package.json",
+    "build:esm": "tsc --module esnext --outDir lib/esm",
+    "build:types": "tsc --declaration --emitDeclarationOnly --outDir lib/types",
+    "typecheck": "tsc --noEmit"
+  },
+  "files": [
+    "lib/"
+  ],
+  "sideEffects": false,
+  "dependencies": {
+    "zod": "^4.6.2"
+  }
+}
