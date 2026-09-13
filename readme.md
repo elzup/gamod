@@ -1,74 +1,76 @@
 # gamod
 
-ゲームの局面 (state) を渡すと**最善手**を返すパッケージ群のモノレポ。攻略本 / チート / CPU 実装の計算機側を、ゲームごとに小さな npm パッケージとして切り出す。
+English | [日本語](readme.ja.md)
 
-## スコープ
+A monorepo of packages that return the **best move** for a given game state. The calculator side of strategy guides / cheats / CPU opponents, split into one small npm package per game.
 
-- 対象は**完全解析できる小さいゲーム**。評価関数による近似ではなく、完全読みと同じ勝敗になる手を返す。
-- 乱数・不完全情報を含むゲームも対象。その場合スコアは勝敗ではなく**期待値**になる。
-- オセロ・将棋・囲碁のような巨大ゲームは対象外 (評価関数チューニングの世界に入るため)。
+## Scope
 
-## パッケージ
+- Targets **small games that can be fully solved**. Returns a move with the same result as exhaustive search — not an approximation by an evaluation function.
+- Games with randomness or hidden information are also in scope; in that case the score is an **expected value** instead of a win/loss.
+- Huge games such as Othello, Shogi, and Go are out of scope (they belong to the world of evaluation-function tuning).
 
-| package | game | 状態 |
+## Packages
+
+| package | game | status |
 | --- | --- | --- |
-| [`@gamod/tic-tac-toe`](packages/tic-tac-toe) | 三目並べ | ✅ 攻略法 (全局面で完全読みと一致) |
+| [`@gamod/tic-tac-toe`](packages/tic-tac-toe) | Tic-tac-toe | ✅ rule-based strategy (matches exhaustive search on every position) |
 
-### 候補 (未着手)
+### Candidates (not started)
 
-| game | 種別 | 備考 |
+| game | kind | notes |
 | --- | --- | --- |
-| コネクト4 | 決定的・完全情報 | 7x6。簡潔な攻略法が無く、全局面の辞書も巨大 (約 4.5 兆局面)。「出荷物は探索を持たない」方針との両立を要検討 |
-| ヨット (Yacht) | 確率・完全情報 | サイコロ。振り直しの期待値 DP。chance node が要る |
-| ポーカー | 確率・**不完全情報** | 相手の手が見えない。期待値だけでなく戦略 (混合戦略) の世界になる |
+| Connect Four | deterministic, perfect information | 7x6. No concise strategy, and a full position table is huge (~4.5 trillion states). Needs a decision on how to fit the "no search in shipped code" policy |
+| Yacht | stochastic, perfect information | Dice. Expectimax DP over rerolls. Needs chance nodes |
+| Poker | stochastic, **hidden information** | The opponent's hand is hidden. Enters the world of strategy (mixed strategies), not just expected values |
 
-## 共通の API 規約
+## Common API convention
 
-ゲームごとに実装は違うが、パッケージの入口は揃える。
+Implementations differ per game, but package entry points are aligned.
 
 ```ts
 import { bestMove, parseState, stateSchema } from "@gamod/<game>"
 
-bestMove(state) // 最善手 1 つ (終局なら null)
-stateSchema // zod schema。state の形はこれが正
+bestMove(state) // one best move (null if the game is over)
+stateSchema // zod schema. The source of truth for the state shape
 ```
 
-- **「最善」= 完全読みと同じ結果になる手。** 決定的ゲームでは勝敗、確率ゲームでは期待値が一致すること。
-- state は schema で検証してから解く。**実戦で現れない局面は例外を投げる** (黙って解くと嘘の最善手が出るため)。判定が安価にできないゲームでは、未定義動作であることを readme に明記する。
+- **"Best" = a move with the same result as exhaustive search.** For deterministic games the win/draw/loss must match; for stochastic games the expected value must match.
+- States are validated by the schema before solving. **Positions that cannot arise in a real game throw** (solving them silently would return a lying best move). For games where reachability cannot be checked cheaply, the readme must state that the behavior is undefined.
 
-## 実装の方針
+## Implementation policy
 
-- **出荷物はゲームの進行も探索も持たない。** 攻略法があれば条件分岐で、無ければ事前生成した辞書 (テーブル) を引く。
-- 攻略法の正しさは**テストで保証する。** テスト専用の完全読み (`packages/<game>/reference/`、出荷しない) と全局面で突き合わせる。
-- 正解役そのものも、実装と独立に知られている数 (局面数・勝敗の内訳など) で確かめる。
+- **Shipped code holds neither game progression nor search.** If a concise strategy exists it is expressed as conditionals; otherwise the package looks up a pre-generated table.
+- **Correctness is guaranteed by tests.** Every position is cross-checked against a test-only exhaustive solver (`packages/<game>/reference/`, not shipped).
+- The reference solver itself is verified against independently known numbers (position counts, outcome breakdowns, etc.).
 
-## デモ
+## Demo
 
-全パッケージを 1 ページに並べた最小デモ ([`apps/demo`](apps/demo))。各カードに盤面 + 最善手のハイライト + 導入コード (`pnpm add` と最小の使い方) が入る。
+A minimal demo page listing every package ([`apps/demo`](apps/demo)). Each card has a board, a best-move highlight, and an installation snippet (`pnpm add` and minimal usage).
 
 ```bash
 pnpm demo
-# 固定 URL で開くなら: portless run --name gamod pnpm demo
+# for a stable URL: portless run --name gamod pnpm demo
 ```
 
-ゲームを増やすときは `apps/demo/src/games/<game>.ts` に `Demo` を 1 つ書いて `main.ts` の `demos` に足すだけ。
+To add a game, write one `Demo` in `apps/demo/src/games/<game>.ts` and append it to `demos` in `main.ts`.
 
-## 開発
+## Development
 
 ```bash
 pnpm install
-pnpm test       # vitest (全パッケージ)
+pnpm test       # vitest (all packages)
 pnpm check      # biome (format + lint)
 pnpm typecheck
-pnpm build      # 各パッケージを cjs / esm / types で出力
+pnpm build      # emit cjs / esm / types per package
 ```
 
 ```
 packages/<game>/
-  src/        # 出荷物: schema + 攻略法 (または辞書)
-  reference/  # テスト専用の正解役: ルール + 完全読み。ゲーム非依存の探索 engine.ts を含む
-  test/       # 全局面照合・性質テスト
-apps/demo/    # 全パッケージのデモページ
+  src/        # shipped: schema + strategy (or table)
+  reference/  # test-only oracle: rules + exhaustive search, incl. the game-agnostic engine.ts
+  test/       # exhaustive cross-checks and property tests
+apps/demo/    # demo page covering all packages
 ```
 
-2 つ目のゲームを作る時点で、`reference/engine.ts` (ゲーム非依存の完全読み) をテスト用の `@gamod/core` として抽出する。
+`reference/engine.ts` (game-agnostic exhaustive search) will be extracted into a test-only `@gamod/core` when the second game is built.

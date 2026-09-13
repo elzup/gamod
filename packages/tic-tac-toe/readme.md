@@ -1,6 +1,8 @@
 # @gamod/tic-tac-toe
 
-三目並べの局面を渡すと最善手を返す。中身は探索ではなく**攻略法 (条件分岐)**。
+English | [日本語](readme.ja.md)
+
+Give it a tic-tac-toe position and it returns the best move. Internally it is not a search but a **rule-based strategy (conditionals)**.
 
 ## Install
 
@@ -13,67 +15,67 @@ pnpm add @gamod/tic-tac-toe
 ```ts
 import { bestMove, initialState } from "@gamod/tic-tac-toe"
 
-bestMove(initialState()) // => 4 (中央)
+bestMove(initialState()) // => 4 (center)
 
 bestMove({
-  // 左上から右下へ 9 マス。空きは null
+  // 9 cells from top-left to bottom-right. null means empty
   board: ["x", "x", null, "o", "o", null, null, null, null],
   turn: "x",
-}) // => 2 (勝ち)
+}) // => 2 (win)
 
 bestMove({ board: ["x", null, null, null, "o", null, null, null, "x"], turn: "o" })
-// => 1 (辺。隅を取るとフォークで負ける)
+// => 1 (edge. Taking a corner loses to a fork)
 ```
 
 ## API
 
-| export | 説明 |
+| export | description |
 | --- | --- |
-| `bestMove(state)` | 最善手のマス番号 (0..8)。終局していれば `null` |
-| `stateSchema` / `parseState` | zod schema と検証付きパーサ |
-| `initialState` / `emptyBoard` | 初期値 |
+| `bestMove(state)` | cell index (0..8) of the best move. `null` if the game is over |
+| `stateSchema` / `parseState` | zod schema and a validating parser |
+| `initialState` / `emptyBoard` | initial values |
 
-## 保証
+## Guarantees
 
-**「最善」= 完全読みと同じ勝敗になる手。** 勝てる局面では勝ち切り、引分の局面では負けない。最短手数で勝つことまでは保証しない。
+**"Best" = a move with the same outcome as exhaustive search.** It wins every winnable position and never loses a drawn one. Winning in the fewest moves is not guaranteed.
 
-- ありうる全 4520 局面 (終局を除く) で、テスト専用の完全読み (`reference/`) と勝敗が一致することをテストしている
-- 初手から攻略法どおりに指した場合、どの相手に対しても負けないことを全対局で確かめている
+- Tested to agree with a test-only exhaustive solver (`reference/`) on all 4520 reachable non-terminal positions
+- Verified that following the strategy from the initial position never loses against any possible opponent
 
-## 攻略法
+## Strategy
 
-上から順に、当てはまった最初のルールで指す。
+Rules are applied top to bottom; the first match is played.
 
-1. **勝つ**: 揃えられるなら揃える
-2. **受ける**: 相手が次に揃えられるならそこを塞ぐ
-3. **攻める**: 勝ちが確定する手があれば指す
-   - 両取り (揃えられるマスが 2 つ)
-   - 連続リーチ: 相手が受けるしかない手を続けて両取りに持ち込む
-   - 両取りの芽を 2 つ作り、どう受けても片方が残る
-4. **守る**: 指した後に相手の 3 が残らない手の中から、中央 → 相手の隅の対角 → 隅 → 辺 の順
+1. **Win**: complete a line if possible
+2. **Block**: stop the opponent's immediate win
+3. **Attack**: play a forcing win if one exists
+   - fork (two ways to complete a line)
+   - consecutive threats: keep making moves the opponent must answer, building to a fork
+   - create two fork seeds so that one survives any defense
+4. **Defend**: among moves that leave the opponent no forcing win, prefer center → the opposite corner of the opponent's corner → corner → edge
 
-Newell & Simon の古典的な 8 ルール (勝つ / 受ける / 両取り / 両取りを防ぐ / 中央 / 対角の隅 / 隅 / 辺) だけでは、相手が定石を外した後の 49 局面で最善を逃す。3 の連続リーチ・両取りの芽と、それを使った 4 の守りはその補正。
+Newell & Simon's classic 8 rules (win / block / fork / block fork / center / opposite corner / corner / edge) miss the best move in 49 of the 4520 positions after the opponent leaves the book. The forcing-win rules in 3 and the defense in 4 are the corrections.
 
 ## State
 
 ```ts
 type State = {
-  board: ("x" | "o" | null)[] // 長さ 9
+  board: ("x" | "o" | null)[] // length 9
   turn: "x" | "o"
 }
 ```
 
-x が先手。**実戦で現れない局面は例外を投げる** — 到達し得ない局面を黙って解くと嘘の最善手を返すため。判定条件は次の 4 つで、全 19683 盤面 × 手番で到達可能局面 5478 と完全に一致することをテストしている。
+x moves first. **Positions that cannot arise in a real game throw** — solving an unreachable position silently would return a lying best move. The four conditions below characterize reachable positions exactly, verified by a test over all 19683 boards × turns matching the 5478 reachable states.
 
-- 石数と手番が合っている (x の手番なら同数、o の手番なら x が 1 つ多い)
-- 両者とも揃っている局面は無い
-- x が揃っているなら手番は o
-- o が揃っているなら手番は x
+- the stone count matches the turn (equal on x's turn; x has one more on o's turn)
+- there is no position where both players have a line
+- if x has a line, it is o's turn
+- if o has a line, it is x's turn
 
-## 開発
+## Development
 
 ```
-src/        # 出荷物: schema + ビット演算 + 攻略法。ゲームの進行も探索も持たない
-reference/  # テスト専用の正解役 (ルール + 完全読み)。出荷しない
-test/       # 全局面照合・性質テスト
+src/        # shipped: schema + bitboard + strategy. No game progression, no search
+reference/  # test-only oracle (rules + exhaustive search). Not shipped
+test/       # exhaustive cross-checks and property tests
 ```
