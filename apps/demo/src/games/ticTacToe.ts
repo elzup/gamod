@@ -1,65 +1,77 @@
 import {
-  applyMove,
   bestMove,
-  bestMoves,
-  evaluate,
   initialState,
-  judge,
-  legalMoves,
   type Move,
+  type Player,
   type State,
 } from "@gamod/tic-tac-toe"
 import { type Demo, el } from "../demo.js"
 
 const MARK = { x: "×", o: "○" } as const
 
-const scoreLabel = (score: number): string =>
-  score > 0 ? "勝ち" : score < 0 ? "負け" : "引分"
+/** パッケージは最善手しか返さないので、対局の進行 (着手・勝敗) はデモ側で持つ */
+const LINES = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+] as const
+
+const winnerOf = ({ board }: State): Player | null =>
+  LINES.map(([a, b, c]) =>
+    board[a] !== null && board[a] === board[b] && board[a] === board[c]
+      ? board[a]
+      : null
+  ).find((player) => player !== null) ?? null
+
+const isOver = (state: State): boolean =>
+  winnerOf(state) !== null || state.board.every((cell) => cell !== null)
+
+const place = (state: State, move: Move): State => ({
+  board: state.board.map((cell, index) => (index === move ? state.turn : cell)),
+  turn: state.turn === "x" ? "o" : "x",
+})
 
 const statusText = (state: State): string => {
-  const judgement = judge(state)
+  const winner = winnerOf(state)
 
-  if (judgement.status === "win") return `${MARK[judgement.winner]} の勝ち`
-  if (judgement.status === "draw") return "引分"
+  if (winner !== null) return `${MARK[winner]} の勝ち`
+  if (isOver(state)) return "引分"
 
-  const [best] = evaluate(state)
-
-  if (best === undefined) return "終局"
-
-  return `${MARK[state.turn]} の手番 — 最善手はこの局面を ${scoreLabel(best.score)} にする (残り ${best.depth} 手)`
+  return `${MARK[state.turn]} の手番 — 枠の付いたマスが最善手`
 }
 
 export const ticTacToeDemo: Demo = {
   pkg: "@gamod/tic-tac-toe",
   title: "三目並べ",
   summary:
-    "全 5478 局面を厳密に解く。最善手と、全合法手の評価 (勝敗 + 決着までの手数) を返す。",
-  snippet: `import { bestMove, evaluate } from "@gamod/tic-tac-toe"
+    "攻略法 (条件分岐) で最善手を返す。ありうる全 4520 局面で完全読みと同じ勝敗になることをテストで保証。",
+  snippet: `import { bestMove } from "@gamod/tic-tac-toe"
 
-const state = {
+bestMove({
   board: ["x", "x", null, "o", "o", null, null, null, null],
   turn: "x",
-} as const
-
-bestMove(state) // => 2
-evaluate(state)[0] // => { move: 2, score: 1, depth: 1 }`,
+}) // => 2`,
 
   mount(root) {
     let state = initialState()
 
     const board = el("div", { class: "board" })
     const status = el("p", { class: "status" })
-    const table = el("div", { class: "evals" })
     const controls = el("div", { class: "controls" })
 
     const play = (move: Move) => {
-      state = applyMove(state, move)
+      state = place(state, move)
       render()
     }
 
     const render = () => {
-      const best = new Set(bestMoves(state))
-      const playable = new Set(legalMoves(state))
+      const over = isOver(state)
+      const best = over ? null : bestMove(state)
 
       board.replaceChildren(
         ...state.board.map((cell, index) => {
@@ -67,10 +79,10 @@ evaluate(state)[0] // => { move: 2, score: 1, depth: 1 }`,
           const button = el(
             "button",
             {
-              class: `cell${best.has(index) ? " best" : ""}`,
+              class: `cell${index === best ? " best" : ""}`,
               type: "button",
               "aria-label": `${index + 1} 番目のマス${cell === null ? "" : `: ${cellText}`}`,
-              ...(playable.has(index) ? {} : { disabled: "" }),
+              ...(over || cell !== null ? { disabled: "" } : {}),
             },
             [cellText]
           )
@@ -82,18 +94,6 @@ evaluate(state)[0] // => { move: 2, score: 1, depth: 1 }`,
       )
 
       status.textContent = statusText(state)
-
-      table.replaceChildren(
-        ...evaluate(state).map((item) =>
-          el("div", { class: "eval" }, [
-            el("span", { class: "eval-move" }, [`${item.move}`]),
-            el("span", { class: `eval-score s${item.score}` }, [
-              scoreLabel(item.score),
-            ]),
-            el("span", { class: "eval-depth" }, [`${item.depth} 手`]),
-          ])
-        )
-      )
     }
 
     const reset = el("button", { type: "button" }, ["最初から"])
@@ -106,13 +106,13 @@ evaluate(state)[0] // => { move: 2, score: 1, depth: 1 }`,
     const auto = el("button", { type: "button" }, ["最善手を指させる"])
 
     auto.addEventListener("click", () => {
-      const move = bestMove(state)
+      const move = isOver(state) ? null : bestMove(state)
 
       if (move !== null) play(move)
     })
 
     controls.replaceChildren(reset, auto)
-    root.replaceChildren(board, status, table, controls)
+    root.replaceChildren(board, status, controls)
     render()
   },
 }

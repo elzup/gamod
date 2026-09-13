@@ -5,8 +5,6 @@
   --line: #d8dee6;
   --card: #ffffff;
   --accent: #2f6feb;
-  --win: #1f9d55;
-  --lose: #d64545;
   color-scheme: light dark;
 }
 
@@ -18,8 +16,6 @@
     --line: #2a323c;
     --card: #171d25;
     --accent: #6a9bff;
-    --win: #4cc38a;
-    --lose: #f07171;
   }
 }
 
@@ -116,38 +112,6 @@ header p {
 .status {
   margin: 12px 0 8px;
   font-size: 14px;
-}
-
-.evals {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  font-size: 12px;
-}
-
-.eval {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 2px 8px;
-}
-
-.eval-move {
-  font-weight: 600;
-}
-
-.eval-score.s1 {
-  color: var(--win);
-}
-
-.eval-score.s-1 {
-  color: var(--lose);
-}
-
-.eval-depth {
-  color: var(--muted);
 }
 
 .controls {

@@ -3,7 +3,11 @@
   "compilerOptions": {
     "lib": ["es2022", "dom", "dom.iterable"],
     "noEmit": true,
-    "types": []
+    "types": [],
+    "baseUrl": ".",
+    "paths": {
+      "@gamod/tic-tac-toe": ["../../packages/tic-tac-toe/src/index.ts"]
+    }
   },
   "include": ["src/**/*", "vite.config.ts"]
 }

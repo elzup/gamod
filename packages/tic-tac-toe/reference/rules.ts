@@ -4,7 +4,7 @@ import {
   moveSchema,
   type Player,
   type State,
-} from "./schema.js"
+} from "../src/schema.js"
 
 /** 勝ち筋 8 本 (横 3 / 縦 3 / 斜め 2) を盤面インデックスで表したもの */
 export const LINES: readonly (readonly [number, number, number])[] = [

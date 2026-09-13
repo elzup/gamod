@@ -1,6 +1,6 @@
 # @gamod/tic-tac-toe
 
-三目並べの局面を渡すと最善手を返す。全 5478 局面を厳密に解くので、評価関数も探索深さの指定も無い。
+三目並べの局面を渡すと最善手を返す。中身は探索ではなく**攻略法 (条件分岐)**。
 
 ## Install
 
@@ -11,35 +11,48 @@ pnpm add @gamod/tic-tac-toe
 ## Usage
 
 ```ts
-import { bestMove, bestMoves, evaluate, initialState } from "@gamod/tic-tac-toe"
+import { bestMove, initialState } from "@gamod/tic-tac-toe"
 
-bestMove(initialState()) // => 0 (初手はどこでも引分なので先頭が返る)
+bestMove(initialState()) // => 4 (中央)
 
-const state = {
+bestMove({
   // 左上から右下へ 9 マス。空きは null
   board: ["x", "x", null, "o", "o", null, null, null, null],
   turn: "x",
-} as const
+}) // => 2 (勝ち)
 
-bestMove(state) // => 2 (勝ち)
-evaluate(state)[0] // => { move: 2, score: 1, depth: 1 }
-bestMoves({ board: ["x", null, null, null, "o", null, null, null, "x"], turn: "o" })
-// => [1, 3, 5, 7] (隅を取るとフォークで負ける)
+bestMove({ board: ["x", null, null, null, "o", null, null, null, "x"], turn: "o" })
+// => 1 (辺。隅を取るとフォークで負ける)
 ```
 
 ## API
 
 | export | 説明 |
 | --- | --- |
-| `bestMove(state)` | 最善手を 1 つ。終局していれば `null` |
-| `bestMoves(state)` | 完全に同値な最善手すべて |
-| `evaluate(state)` | 全合法手を良い順に `{ move, score, depth }` で |
-| `evaluateState(state)` | その局面の結果 `{ score, depth }` |
+| `bestMove(state)` | 最善手のマス番号 (0..8)。終局していれば `null` |
 | `stateSchema` / `parseState` | zod schema と検証付きパーサ |
-| `legalMoves` / `applyMove` / `judge` | ルール (すべて非破壊) |
 | `initialState` / `emptyBoard` | 初期値 |
 
-`score` は手番側から見て `1` 勝ち / `0` 引分 / `-1` 負け。`depth` は双方最善で決着までにかかる手数。
+## 保証
+
+**「最善」= 完全読みと同じ勝敗になる手。** 勝てる局面では勝ち切り、引分の局面では負けない。最短手数で勝つことまでは保証しない。
+
+- ありうる全 4520 局面 (終局を除く) で、テスト専用の完全読み (`reference/`) と勝敗が一致することをテストしている
+- 初手から攻略法どおりに指した場合、どの相手に対しても負けないことを全対局で確かめている
+
+## 攻略法
+
+上から順に、当てはまった最初のルールで指す。
+
+1. **勝つ**: 揃えられるなら揃える
+2. **受ける**: 相手が次に揃えられるならそこを塞ぐ
+3. **攻める**: 勝ちが確定する手があれば指す
+   - 両取り (揃えられるマスが 2 つ)
+   - 連続リーチ: 相手が受けるしかない手を続けて両取りに持ち込む
+   - 両取りの芽を 2 つ作り、どう受けても片方が残る
+4. **守る**: 指した後に相手の 3 が残らない手の中から、中央 → 相手の隅の対角 → 隅 → 辺 の順
+
+Newell & Simon の古典的な 8 ルール (勝つ / 受ける / 両取り / 両取りを防ぐ / 中央 / 対角の隅 / 隅 / 辺) だけでは、相手が定石を外した後の 49 局面で最善を逃す。3 の連続リーチ・両取りの芽と、それを使った 4 の守りはその補正。
 
 ## State
 
@@ -50,4 +63,17 @@ type State = {
 }
 ```
 
-x が先手。石数と手番が矛盾する state (例: 盤が空なのに `turn: "o"`) は**弾く** — 到達し得ない局面を黙って解くと嘘の最善手を返すため。
+x が先手。**実戦で現れない局面は例外を投げる** — 到達し得ない局面を黙って解くと嘘の最善手を返すため。判定条件は次の 4 つで、全 19683 盤面 × 手番で到達可能局面 5478 と完全に一致することをテストしている。
+
+- 石数と手番が合っている (x の手番なら同数、o の手番なら x が 1 つ多い)
+- 両者とも揃っている局面は無い
+- x が揃っているなら手番は o
+- o が揃っているなら手番は x
+
+## 開発
+
+```
+src/        # 出荷物: schema + ビット演算 + 攻略法。ゲームの進行も探索も持たない
+reference/  # テスト専用の正解役 (ルール + 完全読み)。出荷しない
+test/       # 全局面照合・性質テスト
+```
