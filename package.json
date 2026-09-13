@@ -2,6 +2,7 @@
   "name": "gamod",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.26.2",
   "description": "Best-move solvers for games, one package per game",
   "author": "elzup",
   "license": "MIT",
