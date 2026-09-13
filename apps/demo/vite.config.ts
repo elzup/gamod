@@ -8,7 +8,9 @@ export default defineConfig({
   base: "./",
   server: {
     // portless 等のプロキシが渡す PORT/HOST に従う (未設定なら vite の既定)
+    // biome-ignore lint/complexity/useLiteralKeys: tsconfig の noPropertyAccessFromIndexSignature が index アクセスを要求する
     port: Number(process.env["PORT"]) || undefined,
+    // biome-ignore lint/complexity/useLiteralKeys: 同上
     host: process.env["HOST"] || undefined,
   },
   resolve: {
