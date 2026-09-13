@@ -1,4 +1,4 @@
-import { type Demo, el } from "./demo.js"
+import { type Demo, el, REPO_URL, readmeUrl } from "./demo.js"
 import { ticTacToeDemo } from "./games/ticTacToe.js"
 import {
   getLocale,
@@ -22,13 +22,15 @@ const UI = {
 
 const LOCALE_LABEL: Record<Locale, string> = { ja: "日本語", en: "English" }
 
+let activeDemo = 0
+
 const section = (demo: Demo): HTMLElement => {
   const locale = getLocale()
   const playground = el("div", { class: "playground" })
   const node = el("section", { class: "card" }, [
     el("h2", {}, [
       demo.title[locale],
-      el("code", { class: "pkg" }, [demo.pkg]),
+      el("a", { class: "pkg", href: readmeUrl(demo.pkg) }, [demo.pkg]),
     ]),
     el("p", { class: "summary" }, [demo.summary[locale]]),
     playground,
@@ -42,6 +44,33 @@ const section = (demo: Demo): HTMLElement => {
   demo.mount(playground)
 
   return node
+}
+
+const demoTabs = (): HTMLElement => {
+  const locale = getLocale()
+  const tabs = demos.map((demo, index) => {
+    const active = index === activeDemo
+    const tab = el(
+      "button",
+      {
+        type: "button",
+        role: "tab",
+        class: `tab${active ? " active" : ""}`,
+        "aria-selected": String(active),
+      },
+      [demo.title[locale]]
+    )
+
+    tab.addEventListener("click", () => {
+      if (index === activeDemo) return
+      activeDemo = index
+      renderApp()
+    })
+
+    return tab
+  })
+
+  return el("div", { class: "tabs", role: "tablist" }, tabs)
 }
 
 const langSwitch = (): HTMLElement => {
@@ -76,6 +105,9 @@ if (app === null) throw new Error("#app not found")
 
 const renderApp = () => {
   const locale = getLocale()
+  const demo = demos[activeDemo]
+
+  if (demo === undefined) throw new Error(`no demo at index ${activeDemo}`)
 
   document.documentElement.lang = locale
   document.title = UI.title[locale]
@@ -88,12 +120,9 @@ const renderApp = () => {
       ]),
       el("p", {}, [UI.tagline[locale]]),
     ]),
-    ...demos.map(section),
-    el("footer", {}, [
-      el("a", { href: "https://github.com/elzup/gamod" }, [
-        "github.com/elzup/gamod",
-      ]),
-    ])
+    demoTabs(),
+    section(demo),
+    el("footer", {}, [el("a", { href: REPO_URL }, ["github.com/elzup/gamod"])])
   )
 }
 

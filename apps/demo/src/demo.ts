@@ -1,6 +1,12 @@
 /** ゲームを 1 つ足すたびにこの形の Demo を 1 ファイル作り、registry に並べるだけにする */
 import type { LocalizedText } from "./i18n.js"
 
+export const REPO_URL = "https://github.com/elzup/gamod"
+
+/** パッケージ名 (@gamod/<game>) から GitHub 上の readme を指す URL を作る */
+export const readmeUrl = (pkg: string): string =>
+  `${REPO_URL}/tree/main/packages/${pkg.replace(/^@gamod\//, "")}#readme`
+
 export type Demo = {
   /** npm パッケージ名。install コマンドはここから作る */
   pkg: string

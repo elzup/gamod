@@ -101,6 +101,32 @@ header p {
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 2px 8px;
+  text-decoration: none;
+}
+
+.pkg:hover {
+  border-color: var(--accent);
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tab {
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.tab.active {
+  color: var(--fg);
+  border-bottom-color: var(--accent);
 }
 
 .summary {
