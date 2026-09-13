@@ -8,8 +8,8 @@ export default defineConfig({
   base: "./",
   server: {
     // portless 等のプロキシが渡す PORT/HOST に従う (未設定なら vite の既定)
-    port: Number(process.env.PORT) || undefined,
-    host: process.env.HOST || undefined,
+    port: Number(process.env["PORT"]) || undefined,
+    host: process.env["HOST"] || undefined,
   },
   resolve: {
     alias: {
