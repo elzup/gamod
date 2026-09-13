@@ -1,6 +1,6 @@
 {
   "name": "@gamod/tic-tac-toe",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Exact best-move solver for tic-tac-toe",
   "author": "elzup",
   "license": "MIT",
@@ -39,7 +39,11 @@
     "build:cjs": "tsc --module commonjs --moduleResolution node --outDir lib/cjs && echo '{\"type\": \"commonjs\"}' > lib/cjs/package.json",
     "build:esm": "tsc --module esnext --outDir lib/esm",
     "build:types": "tsc --declaration --emitDeclarationOnly --outDir lib/types",
-    "typecheck": "tsc -p tsconfig.check.json"
+    "typecheck": "tsc -p tsconfig.check.json",
+    "prepublishOnly": "pnpm build"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "files": [
     "lib/"
