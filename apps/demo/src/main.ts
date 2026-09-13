@@ -32,7 +32,7 @@ const section = (demo: Demo): HTMLElement => {
     ]),
     el("p", { class: "summary" }, [demo.summary[locale]]),
     playground,
-    el("details", {}, [
+    el("details", { open: "" }, [
       el("summary", {}, [UI.usage[locale]]),
       el("pre", { class: "code" }, [`pnpm add ${demo.pkg}`]),
       el("pre", { class: "code" }, [demo.snippet]),
