@@ -1,10 +1,12 @@
 /** ゲームを 1 つ足すたびにこの形の Demo を 1 ファイル作り、registry に並べるだけにする */
+import type { LocalizedText } from "./i18n.js"
+
 export type Demo = {
   /** npm パッケージ名。install コマンドはここから作る */
   pkg: string
-  title: string
+  title: LocalizedText
   /** 何を計算するパッケージなのかの 1 行説明 */
-  summary: string
+  summary: LocalizedText
   /** 最小の使い方 */
   snippet: string
   mount: (root: HTMLElement) => void

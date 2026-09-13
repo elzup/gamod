@@ -46,6 +46,33 @@ h1 {
   letter-spacing: 0.04em;
 }
 
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.lang {
+  display: flex;
+  gap: 4px;
+}
+
+.lang-button {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.lang-button.active {
+  color: var(--fg);
+  border-color: var(--accent);
+}
+
 header p {
   margin: 8px 0 0;
   color: var(--muted);

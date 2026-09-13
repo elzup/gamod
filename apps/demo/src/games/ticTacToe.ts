@@ -6,6 +6,7 @@ import {
   type State,
 } from "@gamod/tic-tac-toe"
 import { type Demo, el } from "../demo.js"
+import { getLocale, type Locale } from "../i18n.js"
 
 const MARK = { x: "×", o: "○" } as const
 
@@ -20,6 +21,22 @@ const LINES = [
   [0, 4, 8],
   [2, 4, 6],
 ] as const
+
+const TEXT = {
+  turn: {
+    ja: "の手番 — 枠の付いたマスが最善手",
+    en: " to move — the highlighted cell is the best move",
+  },
+  win: { ja: "の勝ち", en: " wins" },
+  draw: { ja: "引分", en: "Draw" },
+  reset: { ja: "最初から", en: "Reset" },
+  auto: { ja: "最善手を指させる", en: "Play the best move" },
+} as const
+
+const cellLabel = (index: number, cellText: string, locale: Locale): string =>
+  locale === "ja"
+    ? `${index + 1} 番目のマス${cellText === "" ? "" : `: ${cellText}`}`
+    : `Cell ${index + 1}${cellText === "" ? "" : `: ${cellText}`}`
 
 const winnerOf = ({ board }: State): Player | null =>
   LINES.map(([a, b, c]) =>
@@ -36,20 +53,25 @@ const place = (state: State, move: Move): State => ({
   turn: state.turn === "x" ? "o" : "x",
 })
 
-const statusText = (state: State): string => {
+const statusText = (state: State, locale: Locale): string => {
   const winner = winnerOf(state)
 
-  if (winner !== null) return `${MARK[winner]} の勝ち`
-  if (isOver(state)) return "引分"
+  if (winner !== null) return `${MARK[winner]}${TEXT.win[locale]}`
+  if (isOver(state)) return TEXT.draw[locale]
 
-  return `${MARK[state.turn]} の手番 — 枠の付いたマスが最善手`
+  return `${MARK[state.turn]}${TEXT.turn[locale]}`
 }
+
+// 言語切替で再 mount されても対局を失わないよう、盤面はモジュールに置く
+let state = initialState()
 
 export const ticTacToeDemo: Demo = {
   pkg: "@gamod/tic-tac-toe",
-  title: "三目並べ",
-  summary:
-    "攻略法 (条件分岐) で最善手を返す。ありうる全 4520 局面で完全読みと同じ勝敗になることをテストで保証。",
+  title: { ja: "三目並べ", en: "Tic-Tac-Toe" },
+  summary: {
+    ja: "攻略法 (条件分岐) で最善手を返す。ありうる全 4520 局面で完全読みと同じ勝敗になることをテストで保証。",
+    en: "Returns the best move via a rule-based strategy (conditionals), tested to match exhaustive search on all 4520 reachable positions.",
+  },
   snippet: `import { bestMove } from "@gamod/tic-tac-toe"
 
 bestMove({
@@ -58,8 +80,7 @@ bestMove({
 }) // => 2`,
 
   mount(root) {
-    let state = initialState()
-
+    const locale = getLocale()
     const board = el("div", { class: "board" })
     const status = el("p", { class: "status" })
     const controls = el("div", { class: "controls" })
@@ -81,7 +102,7 @@ bestMove({
             {
               class: `cell${index === best ? " best" : ""}`,
               type: "button",
-              "aria-label": `${index + 1} 番目のマス${cell === null ? "" : `: ${cellText}`}`,
+              "aria-label": cellLabel(index, cellText, locale),
               ...(over || cell !== null ? { disabled: "" } : {}),
             },
             [cellText]
@@ -93,17 +114,17 @@ bestMove({
         })
       )
 
-      status.textContent = statusText(state)
+      status.textContent = statusText(state, locale)
     }
 
-    const reset = el("button", { type: "button" }, ["最初から"])
+    const reset = el("button", { type: "button" }, [TEXT.reset[locale]])
 
     reset.addEventListener("click", () => {
       state = initialState()
       render()
     })
 
-    const auto = el("button", { type: "button" }, ["最善手を指させる"])
+    const auto = el("button", { type: "button" }, [TEXT.auto[locale]])
 
     auto.addEventListener("click", () => {
       const move = isOver(state) ? null : bestMove(state)
