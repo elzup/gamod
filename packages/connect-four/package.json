@@ -1,7 +1,7 @@
 {
-  "name": "@gamod/tic-tac-toe",
+  "name": "@gamod/connect-four",
   "version": "0.1.0",
-  "description": "Exact best-move solver for tic-tac-toe",
+  "description": "Exact best-move solver for connect four (7x6)",
   "author": "elzup",
   "license": "MIT",
   "type": "module",
@@ -18,17 +18,19 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/elzup/gamod.git",
-    "directory": "packages/tic-tac-toe"
+    "directory": "packages/connect-four"
   },
   "bugs": {
     "url": "https://github.com/elzup/gamod/issues"
   },
-  "homepage": "https://github.com/elzup/gamod/tree/main/packages/tic-tac-toe#readme",
+  "homepage": "https://github.com/elzup/gamod/tree/main/packages/connect-four#readme",
   "keywords": [
     "game",
     "solver",
-    "tic-tac-toe",
-    "minimax"
+    "connect-four",
+    "connect4",
+    "solver",
+    "alpha-beta"
   ],
   "engines": {
     "node": ">=20"

@@ -1,0 +1,17 @@
+{
+  "name": "@gamod/core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Test-only exhaustive search engine shared by the game packages",
+  "author": "elzup",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/engine.ts",
+  "types": "./src/engine.ts",
+  "exports": {
+    ".": "./src/engine.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}

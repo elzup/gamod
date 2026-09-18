@@ -2,8 +2,9 @@
  * テスト専用の正解役。ルールどおりに全局面を完全読みする。パッケージには含めない (files は lib/ のみ)。
  * 攻略法 (src/strategy.ts) が正しいかは、ここと全局面で突き合わせて保証する。
  */
+
+import { type Game, type Outcome, solve } from "@gamod/core"
 import type { Board, Cell, Move, Player, State } from "../src/schema.js"
-import { type Game, type Outcome, solve } from "./engine.js"
 import { applyMove, judge, legalMoves } from "./rules.js"
 
 const terminalScore = (state: State): number | null => {
