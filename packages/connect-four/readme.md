@@ -84,6 +84,8 @@ Time for one `bestMove` call with a cold transposition table (Node.js v22, posit
 | around 12 | hundreds of milliseconds to tens of seconds |
 | 1 to 10 | minutes to hours |
 
+The transposition table is allocated once on the first `bestMove` call (about 21MB) and reused, so solving further positions of the same game keeps getting cheaper.
+
 The shape of that table is a property of connect four, not of this implementation — the C++ original looks the same. A deeper opening book would flatten it, but a book down to move 12 means solving 12 million positions, so it is not bundled here.
 
 ## State
