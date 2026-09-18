@@ -32,6 +32,9 @@ importers:
 
   apps/demo:
     dependencies:
+      '@gamod/connect-four':
+        specifier: workspace:*
+        version: link:../../packages/connect-four
       '@gamod/tic-tac-toe':
         specifier: workspace:*
         version: link:../../packages/tic-tac-toe

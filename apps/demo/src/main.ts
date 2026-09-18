@@ -1,4 +1,5 @@
 import { type Demo, el, REPO_URL, readmeUrl } from "./demo.js"
+import { connectFourDemo } from "./games/connectFour.js"
 import { ticTacToeDemo } from "./games/ticTacToe.js"
 import {
   getLocale,
@@ -9,7 +10,7 @@ import {
 } from "./i18n.js"
 import "./style.css"
 
-const demos: Demo[] = [ticTacToeDemo]
+const demos: Demo[] = [ticTacToeDemo, connectFourDemo]
 
 const UI = {
   tagline: {

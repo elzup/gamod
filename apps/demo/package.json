@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@gamod/connect-four": "workspace:*",
     "@gamod/tic-tac-toe": "workspace:*"
   },
   "devDependencies": {

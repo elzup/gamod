@@ -15,13 +15,13 @@ A monorepo of packages that return the **best move** for a given game state. The
 | package | game | status |
 | --- | --- | --- |
 | [`@gamod/tic-tac-toe`](packages/tic-tac-toe) | Tic-tac-toe | ✅ rule-based strategy (matches exhaustive search on every position) |
+| [`@gamod/connect-four`](packages/connect-four) | Connect Four | ✅ opening book + exact search (the opening takes time) |
 
 ### Candidates (not started)
 
 | game | kind | notes |
 | --- | --- | --- |
-| Connect Four | deterministic, perfect information | 7x6. No concise strategy, and a full position table is huge (~4.5 trillion states). Needs a decision on how to fit the "no search in shipped code" policy |
-| Gomoku | deterministic, perfect information | 15x15. Solved (first-player win), but there is neither a concise strategy nor a feasible table. Shipping it would require allowing search in shipped code, or declaring it out of scope |
+| Gomoku | deterministic, perfect information | 15x15. Solved (first-player win), but there is neither a concise strategy nor a feasible table. Even with a shipped search like Connect Four's, the board is far wider and the pruning has to be designed first |
 | Yacht | stochastic, perfect information | Dice. Expectimax DP over rerolls. Needs chance nodes |
 | Poker | stochastic, **hidden information** | The opponent's hand is hidden. Enters the world of strategy (mixed strategies), not just expected values |
 
@@ -41,8 +41,12 @@ stateSchema // zod schema. The source of truth for the state shape
 
 ## Implementation policy
 
-- **Shipped code holds neither game progression nor search.** If a concise strategy exists it is expressed as conditionals; otherwise the package looks up a pre-generated table.
-- **Correctness is guaranteed by tests.** Every position is cross-checked against a test-only exhaustive solver (`packages/<game>/reference/`, not shipped).
+- **Shipped code holds no game progression.** Playing moves and judging the result is the caller's job (or the demo's); a package only returns the best move.
+- What goes inside a package is picked in this order. **No approximation** in any of the cases.
+  1. A concise strategy, written as conditionals (tic-tac-toe)
+  2. Otherwise a pre-generated table to look up
+  3. If a table is not feasible either, an **exact search in the shipped code** (Connect Four). Then the opening is slow, so the readme has to state how slow
+- **Correctness is guaranteed by tests**, cross-checked against a test-only exhaustive solver (`packages/<game>/reference/`, not shipped). When the whole game cannot be walked, small boards are walked in full and endgame positions are sampled instead.
 - The reference solver itself is verified against independently known numbers (position counts, outcome breakdowns, etc.).
 
 ## Demo
@@ -68,10 +72,9 @@ pnpm build      # emit cjs / esm / types per package
 
 ```
 packages/<game>/
-  src/        # shipped: schema + strategy (or table)
-  reference/  # test-only oracle: rules + exhaustive search, incl. the game-agnostic engine.ts
+  src/        # shipped: schema + strategy (or table, or search)
+  reference/  # test-only oracle: rules + exhaustive search. Not shipped
   test/       # exhaustive cross-checks and property tests
+packages/core # test-only game-agnostic exhaustive search. Not shipped
 apps/demo/    # demo page covering all packages
 ```
-
-`reference/engine.ts` (game-agnostic exhaustive search) will be extracted into a test-only `@gamod/core` when the second game is built.
