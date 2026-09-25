@@ -11,7 +11,7 @@ import {
 } from "./schema.js"
 
 /**
- * 無限デッキの basic strategy。各文字列はディーラーのアップカード 2,3,4,5,6,7,8,9,10,A の順。
+ * 無限デッキの basic strategy。各行はディーラーのアップカード 2,3,4,5,6,7,8,9,10,A の順の 10 マス。
  * 無限デッキでは引いたカードで確率が変わらないので、最善手は (合計, ソフトか, アップカード) だけで決まり、
  * この表がそのまま完全読みと一致する (reference/ev.ts との全ハンド照合で保証)。
  *
@@ -19,57 +19,121 @@ import {
  */
 type Code = "H" | "S" | "D" | "B"
 
-/** 8 以下は常にヒット、17 以上は常にスタンド */
-const HARD: Record<number, string> = {
-  9: "HDDDDHHHHH",
-  10: "DDDDDDDDHH",
-  11: "DDDDDDDDDH",
-  12: "HHSSSHHHHH",
-  13: "SSSSSHHHHH",
-  14: "SSSSSHHHHH",
-  15: "SSSSSHHHHH",
-  16: "SSSSSHHHHH",
+/** アップカードごとの 10 マス。マス数の過不足はタイプエラーになる */
+type Row<T> = readonly [T, T, T, T, T, T, T, T, T, T]
+type Column = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
+const COLUMN: Record<Card, Column> = {
+  "2": 0,
+  "3": 1,
+  "4": 2,
+  "5": 3,
+  "6": 4,
+  "7": 5,
+  "8": 6,
+  "9": 7,
+  "10": 8,
+  J: 8,
+  Q: 8,
+  K: 8,
+  A: 9,
 }
 
-/** ソフト 12 (A,A を割れないとき) は常にヒット、19 以上は常にスタンド */
-const SOFT: Record<number, string> = {
-  13: "HHHHDHHHHH",
-  14: "HHHDDHHHHH",
-  15: "HHHDDHHHHH",
-  16: "HHDDDHHHHH",
-  17: "HDDDDHHHHH",
-  18: "SBBBBSSHHH",
+/** A を含まない (または A を 1 としか数えられない) 合計。2 枚で最小 4 */
+type HardTotal =
+  | 4
+  | 5
+  | 6
+  | 7
+  | 8
+  | 9
+  | 10
+  | 11
+  | 12
+  | 13
+  | 14
+  | 15
+  | 16
+  | 17
+  | 18
+  | 19
+  | 20
+  | 21
+/** A を 11 と数えている合計。A,A の 12 から */
+type SoftTotal = 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21
+/** ペアのカードの点数 (A = 1、10/J/Q/K = 10) */
+type PairValue = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
+
+// biome-ignore format: 表として縦横を揃えて読むため
+const HARD: Record<HardTotal, Row<Code>> = {
+  4:  ["H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
+  5:  ["H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
+  6:  ["H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
+  7:  ["H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
+  8:  ["H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
+  9:  ["H", "D", "D", "D", "D", "H", "H", "H", "H", "H"],
+  10: ["D", "D", "D", "D", "D", "D", "D", "D", "H", "H"],
+  11: ["D", "D", "D", "D", "D", "D", "D", "D", "D", "H"],
+  12: ["H", "H", "S", "S", "S", "H", "H", "H", "H", "H"],
+  13: ["S", "S", "S", "S", "S", "H", "H", "H", "H", "H"],
+  14: ["S", "S", "S", "S", "S", "H", "H", "H", "H", "H"],
+  15: ["S", "S", "S", "S", "S", "H", "H", "H", "H", "H"],
+  16: ["S", "S", "S", "S", "S", "H", "H", "H", "H", "H"],
+  17: ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"],
+  18: ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"],
+  19: ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"],
+  20: ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"],
+  21: ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"],
+}
+
+/** ソフト 12 は A,A を割れないとき (4 ハンド到達時) にだけ現れる */
+// biome-ignore format: 表として縦横を揃えて読むため
+const SOFT: Record<SoftTotal, Row<Code>> = {
+  12: ["H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
+  13: ["H", "H", "H", "H", "D", "H", "H", "H", "H", "H"],
+  14: ["H", "H", "H", "D", "D", "H", "H", "H", "H", "H"],
+  15: ["H", "H", "H", "D", "D", "H", "H", "H", "H", "H"],
+  16: ["H", "H", "D", "D", "D", "H", "H", "H", "H", "H"],
+  17: ["H", "D", "D", "D", "D", "H", "H", "H", "H", "H"],
+  18: ["S", "B", "B", "B", "B", "S", "S", "H", "H", "H"],
+  19: ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"],
+  20: ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"],
+  21: ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"],
 }
 
 /**
- * ペアを割るか (P = 割る)。キーはカードの点数 (A = 1)。
+ * ペアを割るか (P = 割る, - = 割らずに HARD / SOFT に従う)。
  * 割るかどうかはハンド数や後に控えるハンド数に依らない (reference で全組み合わせを確認済み)。
  */
-const SPLIT: Record<number, string> = {
-  1: "PPPPPPPPPP",
-  2: "PPPPPP----",
-  3: "PPPPPP----",
-  4: "---PP-----",
-  6: "PPPPP-----",
-  7: "PPPPPP----",
-  8: "PPPPPPPPPP",
-  9: "PPPPP-PP--",
+// biome-ignore format: 表として縦横を揃えて読むため
+const SPLIT: Record<PairValue, Row<"P" | "-">> = {
+  1:  ["P", "P", "P", "P", "P", "P", "P", "P", "P", "P"],
+  2:  ["P", "P", "P", "P", "P", "P", "-", "-", "-", "-"],
+  3:  ["P", "P", "P", "P", "P", "P", "-", "-", "-", "-"],
+  4:  ["-", "-", "-", "P", "P", "-", "-", "-", "-", "-"],
+  5:  ["-", "-", "-", "-", "-", "-", "-", "-", "-", "-"],
+  6:  ["P", "P", "P", "P", "P", "-", "-", "-", "-", "-"],
+  7:  ["P", "P", "P", "P", "P", "P", "-", "-", "-", "-"],
+  8:  ["P", "P", "P", "P", "P", "P", "P", "P", "P", "P"],
+  9:  ["P", "P", "P", "P", "P", "-", "P", "P", "-", "-"],
+  10: ["-", "-", "-", "-", "-", "-", "-", "-", "-", "-"],
 }
 
-const upcardIndex = (dealer: Card): number => {
-  const value = cardValue(dealer)
+const hasKey = <T extends object>(
+  table: T,
+  key: number
+): key is keyof T & number => Object.hasOwn(table, key)
 
-  return value === 1 ? 9 : value - 2
+/** バーストしていない合計は必ずどちらかの表にある (無ければ totalOf か表の欠け = バグ) */
+const codeOf = ({ value, isSoft }: Total, column: Column): Code => {
+  if (isSoft && hasKey(SOFT, value)) return SOFT[value][column]
+  if (!isSoft && hasKey(HARD, value)) return HARD[value][column]
+
+  throw new Error(`no strategy row for ${isSoft ? "soft" : "hard"} ${value}`)
 }
 
-const codeOf = ({ value, isSoft }: Total, column: number): Code => {
-  const row = isSoft ? SOFT[value] : HARD[value]
-
-  if (row) return row[column] as Code
-  if (isSoft) return value >= 19 ? "S" : "H"
-
-  return value >= 17 ? "S" : "H"
-}
+const shouldSplit = (pairValue: number, column: Column): boolean =>
+  hasKey(SPLIT, pairValue) && SPLIT[pairValue][column] === "P"
 
 const moveOf = (code: Code, canDouble: boolean): Move => {
   if (code === "D") return canDouble ? "double" : "hit"
@@ -92,15 +156,12 @@ export const bestMove = (input: StateInput): Move | null => {
   if (hands === 1 && isTwoCards && total.value === 21) return null
   if (isSplitAces(state)) return null
 
-  const column = upcardIndex(dealer)
+  const column = COLUMN[dealer]
   const [first, second] = hand
-  const pairValue =
-    isTwoCards && first && second && cardValue(first) === cardValue(second)
-      ? cardValue(first)
-      : null
+  const isPair = isTwoCards && cardValue(first) === cardValue(second)
 
-  if (pairValue !== null && hands < MAX_HANDS) {
-    if (SPLIT[pairValue]?.[column] === "P") return "split"
+  if (isPair && hands < MAX_HANDS && shouldSplit(cardValue(first), column)) {
+    return "split"
   }
 
   return moveOf(codeOf(total, column), isTwoCards)
