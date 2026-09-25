@@ -15,6 +15,7 @@ A monorepo of packages that return the **best move** for a given game state. The
 | package | game | status |
 | --- | --- | --- |
 | [`@gamod/tic-tac-toe`](packages/tic-tac-toe) | Tic-tac-toe | ✅ rule-based strategy (matches exhaustive search on every position) |
+| [`@gamod/yacht`](packages/yacht) | Yacht (Clubhouse Games 51 rules) | 🚧 draft (private). Exact expected-score DP works; the shipping format of the value table is undecided |
 
 ### Candidates (not started)
 
@@ -22,7 +23,6 @@ A monorepo of packages that return the **best move** for a given game state. The
 | --- | --- | --- |
 | Connect Four | deterministic, perfect information | 7x6. No concise strategy, and a full position table is huge (~4.5 trillion states). Needs a decision on how to fit the "no search in shipped code" policy |
 | Gomoku | deterministic, perfect information | 15x15. Solved (first-player win), but there is neither a concise strategy nor a feasible table. Shipping it would require allowing search in shipped code, or declaring it out of scope |
-| Yacht | stochastic, perfect information | Dice. Expectimax DP over rerolls. Needs chance nodes |
 | Poker | stochastic, **hidden information** | The opponent's hand is hidden. Enters the world of strategy (mixed strategies), not just expected values |
 
 ## Common API convention
