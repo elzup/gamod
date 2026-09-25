@@ -1,0 +1,59 @@
+{
+  "name": "@gamod/yacht",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Expected-score best-move solver for Yacht (Clubhouse Games 51 rules). Draft",
+  "author": "elzup",
+  "license": "MIT",
+  "type": "module",
+  "main": "lib/cjs/index.js",
+  "module": "lib/esm/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "import": "./lib/esm/index.js",
+      "require": "./lib/cjs/index.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elzup/gamod.git",
+    "directory": "packages/yacht"
+  },
+  "bugs": {
+    "url": "https://github.com/elzup/gamod/issues"
+  },
+  "homepage": "https://github.com/elzup/gamod/tree/main/packages/yacht#readme",
+  "keywords": [
+    "game",
+    "solver",
+    "yacht",
+    "yahtzee",
+    "dice",
+    "expectimax"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "clean": "rimraf lib",
+    "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
+    "build:cjs": "tsc --module commonjs --moduleResolution node --outDir lib/cjs && echo '{\"type\": \"commonjs\"}' > lib/cjs/package.json",
+    "build:esm": "tsc --module esnext --outDir lib/esm",
+    "build:types": "tsc --declaration --emitDeclarationOnly --outDir lib/types",
+    "typecheck": "tsc -p tsconfig.check.json",
+    "measure": "vitest run --config vitest.measure.config.ts",
+    "prepublishOnly": "pnpm build"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "lib/"
+  ],
+  "sideEffects": false,
+  "dependencies": {
+    "zod": "^4.6.2"
+  }
+}
