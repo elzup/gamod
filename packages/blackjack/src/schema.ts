@@ -20,10 +20,12 @@ export const cardSchema = z.enum([
 export const moveSchema = z.enum(["hit", "stand", "double", "split"])
 
 export type Card = z.infer<typeof cardSchema>
+export type HandCount = (typeof HAND_COUNTS)[number]
 export type Move = z.infer<typeof moveSchema>
 
-/** リスプリットで持てるハンド数の上限 (A 以外は 3 回まで割れる) */
-export const MAX_HANDS = 4
+/** 持てるハンド数。リスプリットで 4 まで増える (A 以外は 3 回まで割れる) */
+export const HAND_COUNTS = [1, 2, 3, 4] as const
+export const MAX_HANDS = HAND_COUNTS.length
 
 /** A は 1 として数える (ソフトかどうかは合計側で判定する) */
 export const cardValue = (card: Card): number => {
@@ -43,14 +45,15 @@ export const totalOf = (cards: readonly Card[]): Total => {
   return { value: isSoft ? hard + 10 : hard, isSoft }
 }
 
-export const isSplitHand = ({ hands }: Pick<State, "hands">): boolean =>
-  hands > 1
+export const isSplitHand = ({ hands }: { hands: number }): boolean => hands > 1
 
 export const isSplitAces = ({
   hand,
   hands,
-}: Pick<State, "hand" | "hands">): boolean =>
-  isSplitHand({ hands }) && hand[0] === "A"
+}: {
+  hand: readonly Card[]
+  hands: number
+}): boolean => isSplitHand({ hands }) && hand[0] === "A"
 
 /**
  * プレイヤーは 21 を超えた時点で引けなくなるので、最後の 1 枚より前でバーストしている手札は実戦に現れない。
@@ -74,9 +77,9 @@ export const stateSchema = z
     /** ディーラーのアップカード。peek 済みでディーラー BJ ではない前提 */
     dealer: cardSchema,
     /** 今打っているハンド。スプリット後なら 1 枚目が割ったカード */
-    hand: z.array(cardSchema).min(2),
+    hand: z.tuple([cardSchema, cardSchema], cardSchema),
     /** 今持っているハンドの数。2 以上ならこのハンドはスプリットで生まれたもの */
-    hands: z.number().int().min(1).max(MAX_HANDS).default(1),
+    hands: z.literal(HAND_COUNTS).default(1),
   })
   .refine(isReachable, {
     message: "hand cannot arise in a real game",

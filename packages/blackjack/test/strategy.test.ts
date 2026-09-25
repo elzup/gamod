@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { optimalMoves } from "../reference/solver.js"
-import { type Card, cardValue, MAX_HANDS, totalOf } from "../src/schema.js"
+import {
+  type Card,
+  cardValue,
+  HAND_COUNTS,
+  type StateInput,
+  totalOf,
+} from "../src/schema.js"
 import { bestMove } from "../src/strategy.js"
 
 /** 10/J/Q/K は同じ点数なので照合は 10 で代表させ、絵札は別のテストで確認する */
@@ -24,9 +30,13 @@ const RANKS: readonly Card[] = [
 const MAX_CARDS = 4
 
 /** 最後の 1 枚より前にバーストしていない手札 (= 実戦に現れる手札) を 2..MAX_CARDS 枚まで */
-const reachableHands = (): Card[][] => {
-  const grow = (hand: Card[]): Card[][] => {
-    const self = hand.length >= 2 ? [hand] : []
+type Hand = StateInput["hand"]
+
+const isHand = (cards: Card[]): cards is Hand => cards.length >= 2
+
+const reachableHands = (): Hand[] => {
+  const grow = (hand: Card[]): Hand[] => {
+    const self = isHand(hand) ? [hand] : []
 
     if (hand.length >= MAX_CARDS || totalOf(hand).value > 21) return self
 
@@ -84,7 +94,7 @@ describe("bestMove", () => {
 
     for (const hand of reachableHands()) {
       for (const dealer of RANKS) {
-        for (let count = 1; count <= MAX_HANDS; count++) {
+        for (const count of HAND_COUNTS) {
           if (isSplitAcesHand(hand, count) && hand.length > 2) continue
 
           const move = bestMove({ dealer, hand, hands: count })
@@ -161,12 +171,35 @@ describe("parseState", () => {
     ).toThrow(/cannot arise/)
   })
 
-  it("rejects too many hands and single cards", () => {
+  it("rejects values outside the types at runtime too", () => {
+    // 型で弾ける値も、JS からの呼び出しや外部入力で来るので実行時に弾く
+    // @ts-expect-error hands は 1..4
     expect(() => bestMove({ dealer: "5", hand: ["8", "8"], hands: 5 })).toThrow(
       /invalid blackjack state/
     )
+    // @ts-expect-error hand は 2 枚以上
     expect(() => bestMove({ dealer: "5", hand: ["8"] })).toThrow(
       /invalid blackjack state/
     )
+  })
+})
+
+describe("StateInput type", () => {
+  // 呼ばない関数の中に置き、tsc (typecheck) で型エラーになることだけを確かめる
+  it("rejects invalid values as type errors", () => {
+    const typeCheckOnly = () => {
+      // @ts-expect-error 存在しないカード
+      bestMove({ dealer: "11", hand: ["8", "8"] })
+      // @ts-expect-error 存在しないカード
+      bestMove({ dealer: "A", hand: ["X", "8"] })
+      // @ts-expect-error カードは文字列
+      bestMove({ dealer: "A", hand: [8, 8] })
+      // @ts-expect-error 手札は 2 枚以上
+      bestMove({ dealer: "A", hand: ["8"] })
+      // @ts-expect-error ハンド数は 1..4
+      bestMove({ dealer: "A", hand: ["8", "8"], hands: 0 })
+    }
+
+    expect(typeCheckOnly).toBeTypeOf("function")
   })
 })
