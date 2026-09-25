@@ -16,6 +16,7 @@ A monorepo of packages that return the **best move** for a given game state. The
 | --- | --- | --- |
 | [`@gamod/tic-tac-toe`](packages/tic-tac-toe) | Tic-tac-toe | ✅ rule-based strategy (matches exhaustive search on every position) |
 | [`@gamod/yacht`](packages/yacht) | Yacht (Clubhouse Games 51 rules) | 🚧 draft (private). Exact expected-score DP works; the shipping format of the value table is undecided |
+| [`@gamod/blackjack`](packages/blackjack) | Blackjack (infinite deck, S17) | 🚧 draft (private). Basic-strategy table; matches exact expected-value play on every hand |
 
 ### Candidates (not started)
 

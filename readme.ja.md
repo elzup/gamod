@@ -16,6 +16,7 @@
 | --- | --- | --- |
 | [`@gamod/tic-tac-toe`](packages/tic-tac-toe) | 三目並べ | ✅ 攻略法 (全局面で完全読みと一致) |
 | [`@gamod/yacht`](packages/yacht) | ヨット (アソビ大全51版) | 🚧 draft (private)。期待値 DP は完成、期待値テーブルの出荷形式が未決 |
+| [`@gamod/blackjack`](packages/blackjack) | ブラックジャック (無限デッキ・S17) | 🚧 draft (private)。basic strategy の表引き (全手札で厳密な期待値計算と一致) |
 
 ### 候補 (未着手)
 
