@@ -75,3 +75,5 @@ apps/demo/    # 全パッケージのデモページ
 ```
 
 2 つ目のゲームを作る時点で、`reference/engine.ts` (ゲーム非依存の完全読み) をテスト用の `@gamod/core` として抽出する。
+
+ゲームの追加手順は [docs/adding-a-game.md](docs/adding-a-game.md) を参照。

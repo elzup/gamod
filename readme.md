@@ -75,3 +75,5 @@ apps/demo/    # demo page covering all packages
 ```
 
 `reference/engine.ts` (game-agnostic exhaustive search) will be extracted into a test-only `@gamod/core` when the second game is built.
+
+To add a game, follow [docs/adding-a-game.md](docs/adding-a-game.md).
