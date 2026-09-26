@@ -6,7 +6,8 @@
     "types": [],
     "baseUrl": ".",
     "paths": {
-      "@gamod/tic-tac-toe": ["../../packages/tic-tac-toe/src/index.ts"]
+      "@gamod/tic-tac-toe": ["../../packages/tic-tac-toe/src/index.ts"],
+      "@gamod/blackjack": ["../../packages/blackjack/src/index.ts"]
     }
   },
   "include": ["src/**/*", "vite.config.ts"]

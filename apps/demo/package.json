@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@gamod/blackjack": "workspace:*",
     "@gamod/tic-tac-toe": "workspace:*"
   },
   "devDependencies": {
