@@ -29,6 +29,9 @@ const RANKS: readonly Card[] = [
  */
 const MAX_CARDS = 4
 
+/** 単独で約 2 秒、全パッケージ並列の pnpm test では 4 秒を超えて既定の 5 秒に迫るので余裕を取る */
+const EXHAUSTIVE_TIMEOUT_MS = 30_000
+
 /** 最後の 1 枚より前にバーストしていない手札 (= 実戦に現れる手札) を 2..MAX_CARDS 枚まで */
 type Hand = StateInput["hand"]
 
@@ -88,47 +91,51 @@ const cachedOptimalMoves = (
 }
 
 describe("bestMove", () => {
-  it("matches exhaustive expected-value play on every reachable hand", () => {
-    const mismatches: string[] = []
-    let checked = 0
+  it(
+    "matches exhaustive expected-value play on every reachable hand",
+    () => {
+      const mismatches: string[] = []
+      let checked = 0
 
-    for (const hand of reachableHands()) {
-      for (const dealer of RANKS) {
-        for (const count of HAND_COUNTS) {
-          if (isSplitAcesHand(hand, count) && hand.length > 2) continue
+      for (const hand of reachableHands()) {
+        for (const dealer of RANKS) {
+          for (const count of HAND_COUNTS) {
+            if (isSplitAcesHand(hand, count) && hand.length > 2) continue
 
-          const move = bestMove({ dealer, hand, hands: count })
-          const total = totalOf(hand)
-          const isOver =
-            total.value > 21 ||
-            (count === 1 && hand.length === 2 && total.value === 21) ||
-            isSplitAcesHand(hand, count)
-          const label = `${hand} vs ${dealer} (hands ${count})`
+            const move = bestMove({ dealer, hand, hands: count })
+            const total = totalOf(hand)
+            const isOver =
+              total.value > 21 ||
+              (count === 1 && hand.length === 2 && total.value === 21) ||
+              isSplitAcesHand(hand, count)
+            const label = `${hand} vs ${dealer} (hands ${count})`
 
-          checked++
-          if (isOver) {
-            if (move !== null)
-              mismatches.push(`${label}: ${move}, expected null`)
-            continue
-          }
+            checked++
+            if (isOver) {
+              if (move !== null)
+                mismatches.push(`${label}: ${move}, expected null`)
+              continue
+            }
 
-          // 後に控えるハンド数はどれでも最善手が変わらないことも同時に確かめる
-          for (let later = 0; later < count; later++) {
-            const optimal = cachedOptimalMoves(hand, dealer, count, later)
+            // 後に控えるハンド数はどれでも最善手が変わらないことも同時に確かめる
+            for (let later = 0; later < count; later++) {
+              const optimal = cachedOptimalMoves(hand, dealer, count, later)
 
-            if (move === null || !optimal.includes(move)) {
-              mismatches.push(
-                `${label} later ${later}: ${move}, expected ${optimal}`
-              )
+              if (move === null || !optimal.includes(move)) {
+                mismatches.push(
+                  `${label} later ${later}: ${move}, expected ${optimal}`
+                )
+              }
             }
           }
         }
       }
-    }
 
-    expect(mismatches).toEqual([])
-    expect(checked).toBeGreaterThan(100_000)
-  })
+      expect(mismatches).toEqual([])
+      expect(checked).toBeGreaterThan(100_000)
+    },
+    EXHAUSTIVE_TIMEOUT_MS
+  )
 
   it("treats face cards as 10", () => {
     expect(bestMove({ dealer: "K", hand: ["Q", "6"] })).toBe("hit")
@@ -198,8 +205,15 @@ describe("StateInput type", () => {
       bestMove({ dealer: "A", hand: ["8"] })
       // @ts-expect-error ハンド数は 1..4
       bestMove({ dealer: "A", hand: ["8", "8"], hands: 0 })
+      // @ts-expect-error バッククォートでも存在しないカードは弾く
+      bestMove({ dealer: "10", hand: ["6", `20`] })
     }
 
     expect(typeCheckOnly).toBeTypeOf("function")
+  })
+
+  it("accepts cards written with double quotes or backticks", () => {
+    expect(bestMove({ dealer: "10", hand: ["6", "10"] })).toBe("hit")
+    expect(bestMove({ dealer: `10`, hand: [`6`, `10`] })).toBe("hit")
   })
 })
