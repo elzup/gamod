@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@gamod/blackjack": "workspace:*",
+    "@gamod/nim": "workspace:*",
     "@gamod/tic-tac-toe": "workspace:*"
   },
   "devDependencies": {

@@ -1,5 +1,6 @@
 import { type Demo, el, REPO_URL, readmeUrl } from "./demo.js"
 import { blackjackDemo } from "./games/blackjack.js"
+import { nimDemo } from "./games/nim.js"
 import { ticTacToeDemo } from "./games/ticTacToe.js"
 import {
   getLocale,
@@ -10,7 +11,7 @@ import {
 } from "./i18n.js"
 import "./style.css"
 
-const demos: Demo[] = [ticTacToeDemo, blackjackDemo]
+const demos: Demo[] = [ticTacToeDemo, nimDemo, blackjackDemo]
 
 const UI = {
   tagline: {

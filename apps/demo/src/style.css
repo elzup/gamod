@@ -245,6 +245,56 @@ header p {
   white-space: nowrap;
 }
 
+.nim-heaps {
+  display: grid;
+  gap: 8px;
+}
+
+.nim-row {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.nim-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.nim-stones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 28px;
+}
+
+.nim-stone {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.nim-stone.best {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.nim-stone:hover,
+.nim-stone:hover ~ .nim-stone {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.nim-count {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
 details {
   margin-top: 20px;
   font-size: 13px;

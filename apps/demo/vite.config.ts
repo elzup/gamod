@@ -18,6 +18,7 @@ export default defineConfig({
       // ビルド成果物 (lib/) ではなく src を直接見る。demo を動かすのに pnpm build を挟ませないため
       "@gamod/tic-tac-toe": resolve(packages, "tic-tac-toe/src/index.ts"),
       "@gamod/blackjack": resolve(packages, "blackjack/src/index.ts"),
+      "@gamod/nim": resolve(packages, "nim/src/index.ts"),
     },
   },
 })
