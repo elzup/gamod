@@ -8,6 +8,7 @@ How to add `packages/<game>` to this monorepo, using `tic-tac-toe` as the refere
 packages/<game>/
   src/        # shipped: schema + strategy (or pre-generated table). No game progression, no search
   reference/  # test-only oracle: rules + exhaustive search. Not shipped (files: lib/ only)
+              # deterministic games plug into the shared search in @gamod/core (devDependency)
   test/       # exhaustive cross-checks and property tests
   readme.md   # English (canonical)
   readme.ja.md
@@ -80,7 +81,6 @@ git push origin refs/tags/<game>-v<version>
 
 `.github/workflows/npm-publish.yml` runs test + publish with provenance. When a second package exists, generalize the workflow (e.g. one job per package or a matrix) — do not build the abstraction before then.
 
-## 5. When the second game lands
+## 5. Shared search (`@gamod/core`)
 
-- Extract `reference/engine.ts` into a test-only `@gamod/core` (planned; not before).
-- Revisit this doc and fix whatever drifted.
+`packages/core` holds the game-agnostic exhaustive search (`solve` / `evaluateMoves`). It is private and never published; packages depend on it as a `devDependency` (`"@gamod/core": "workspace:*"`) and import it only from `reference/`. See `packages/nim/reference/solver.ts` for the smallest example of defining a `Game`.

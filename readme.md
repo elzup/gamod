@@ -15,6 +15,7 @@ A monorepo of packages that return the **best move** for a given game state. The
 | package | game | status |
 | --- | --- | --- |
 | [`@gamod/tic-tac-toe`](packages/tic-tac-toe) | Tic-tac-toe | ✅ rule-based strategy (matches exhaustive search on every position) |
+| [`@gamod/nim`](packages/nim) | Nim (normal and misère play) | 🚧 draft (private). Nim-sum strategy; matches exhaustive search on every checked position |
 | [`@gamod/yacht`](packages/yacht) | Yacht (Clubhouse Games 51 rules) | 🚧 draft (private). Exact expected-score DP works; the shipping format of the value table is undecided |
 | [`@gamod/blackjack`](packages/blackjack) | Blackjack (infinite deck, S17) | 🚧 draft (private). Basic-strategy table; matches exact expected-value play on every hand |
 
@@ -70,11 +71,10 @@ pnpm build      # emit cjs / esm / types per package
 ```
 packages/<game>/
   src/        # shipped: schema + strategy (or table)
-  reference/  # test-only oracle: rules + exhaustive search, incl. the game-agnostic engine.ts
+  reference/  # test-only oracle: rules + exhaustive search
   test/       # exhaustive cross-checks and property tests
-apps/demo/    # demo page covering all packages
+packages/core/  # test-only, game-agnostic exhaustive search used by reference/. Private, never published
+apps/demo/      # demo page covering all packages
 ```
-
-`reference/engine.ts` (game-agnostic exhaustive search) will be extracted into a test-only `@gamod/core` when the second game is built.
 
 To add a game, follow [docs/adding-a-game.md](docs/adding-a-game.md).

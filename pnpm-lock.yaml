@@ -35,6 +35,9 @@ importers:
       '@gamod/blackjack':
         specifier: workspace:*
         version: link:../../packages/blackjack
+      '@gamod/nim':
+        specifier: workspace:*
+        version: link:../../packages/nim
       '@gamod/tic-tac-toe':
         specifier: workspace:*
         version: link:../../packages/tic-tac-toe
@@ -49,11 +52,27 @@ importers:
         specifier: ^4.6.2
         version: 4.6.2
 
+  packages/core: {}
+
+  packages/nim:
+    dependencies:
+      zod:
+        specifier: ^4.6.2
+        version: 4.6.2
+    devDependencies:
+      '@gamod/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/tic-tac-toe:
     dependencies:
       zod:
         specifier: ^4.6.2
         version: 4.6.2
+    devDependencies:
+      '@gamod/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/yacht:
     dependencies:

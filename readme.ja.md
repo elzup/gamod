@@ -15,6 +15,7 @@
 | package | game | 状態 |
 | --- | --- | --- |
 | [`@gamod/tic-tac-toe`](packages/tic-tac-toe) | 三目並べ | ✅ 攻略法 (全局面で完全読みと一致) |
+| [`@gamod/nim`](packages/nim) | ニム (最後を取ったら勝ち・負けの両ルール) | 🚧 draft (private)。ニム和の攻略法 (照合した全局面で完全読みと一致) |
 | [`@gamod/yacht`](packages/yacht) | ヨット (アソビ大全51版) | 🚧 draft (private)。期待値 DP は完成、期待値テーブルの出荷形式が未決 |
 | [`@gamod/blackjack`](packages/blackjack) | ブラックジャック (無限デッキ・S17) | 🚧 draft (private)。basic strategy の表引き (全手札で厳密な期待値計算と一致) |
 
@@ -70,11 +71,10 @@ pnpm build      # 各パッケージを cjs / esm / types で出力
 ```
 packages/<game>/
   src/        # 出荷物: schema + 攻略法 (または辞書)
-  reference/  # テスト専用の正解役: ルール + 完全読み。ゲーム非依存の探索 engine.ts を含む
+  reference/  # テスト専用の正解役: ルール + 完全読み
   test/       # 全局面照合・性質テスト
-apps/demo/    # 全パッケージのデモページ
+packages/core/  # reference/ が使うゲーム非依存の完全読み (テスト専用)。private で公開しない
+apps/demo/      # 全パッケージのデモページ
 ```
-
-2 つ目のゲームを作る時点で、`reference/engine.ts` (ゲーム非依存の完全読み) をテスト用の `@gamod/core` として抽出する。
 
 ゲームの追加手順は [docs/adding-a-game.md](docs/adding-a-game.md) を参照。
