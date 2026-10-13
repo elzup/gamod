@@ -51,5 +51,8 @@
   "sideEffects": false,
   "dependencies": {
     "zod": "^4.6.2"
+  },
+  "devDependencies": {
+    "@gamod/core": "workspace:*"
   }
 }
