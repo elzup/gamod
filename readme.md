@@ -21,11 +21,21 @@ A monorepo of packages that return the **best move** for a given game state. The
 
 ### Candidates (not started)
 
-| game | kind | notes |
-| --- | --- | --- |
-| Connect Four | deterministic, perfect information | 7x6. No concise strategy, and a full position table is huge (~4.5 trillion states). Needs a decision on how to fit the "no search in shipped code" policy |
-| Gomoku | deterministic, perfect information | 15x15. Solved (first-player win), but there is neither a concise strategy nor a feasible table. Shipping it would require allowing search in shipped code, or declaring it out of scope |
-| Poker | stochastic, **hidden information** | The opponent's hand is hidden. Enters the world of strategy (mixed strategies), not just expected values |
+Candidates are ordered by how well they fit the current package contract: exact decisions, a compact shipped strategy or table, and no runtime search.
+
+| priority | game | kind | why it is a useful next step |
+| --- | --- | --- | --- |
+| 1 | Video poker | stochastic, perfect information | Closest to Blackjack and Yacht: exact expected-value decisions can be shipped as a compact lookup table. The first ruleset still needs to be chosen |
+| 2 | Pig | stochastic, perfect information | A small exact DP, but adds an opponent and chance nodes. This would exercise a reusable stochastic-game reference solver |
+| 3 | Mastermind / Bulls and Cows | deterministic, **hidden information** | The state space is small enough for exact analysis, but the objective (expected guesses, worst case, or guaranteed solve) and state representation need to be defined first |
+
+### Deferred until the scope or shipping policy changes
+
+| game | blocker |
+| --- | --- |
+| Connect Four | A full position table is huge (~4.5 trillion states), and no concise perfect strategy is known. It conflicts with the current "no search in shipped code" policy |
+| Gomoku | A 15x15 table is infeasible and no concise perfect strategy is known. Shipping it would require runtime search or a different guarantee |
+| Poker | Opponent hidden information requires mixed strategies rather than a single expected-value best move. Video poker covers the tractable single-player part first |
 
 ## Common API convention
 
