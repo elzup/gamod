@@ -38,7 +38,7 @@
   "scripts": {
     "clean": "rimraf lib",
     "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
-    "build:cjs": "tsc --module commonjs --moduleResolution node --outDir lib/cjs && echo '{\"type\": \"commonjs\"}' > lib/cjs/package.json",
+    "build:cjs": "tsc --module commonjs --outDir lib/cjs && echo '{\"type\": \"commonjs\"}' > lib/cjs/package.json",
     "build:esm": "tsc --module esnext --outDir lib/esm",
     "build:types": "tsc --declaration --emitDeclarationOnly --outDir lib/types",
     "typecheck": "tsc -p tsconfig.check.json",

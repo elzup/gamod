@@ -4,7 +4,6 @@
     "lib": ["es2022", "dom", "dom.iterable"],
     "noEmit": true,
     "types": [],
-    "baseUrl": ".",
     "paths": {
       "@gamod/tic-tac-toe": ["../../packages/tic-tac-toe/src/index.ts"],
       "@gamod/blackjack": ["../../packages/blackjack/src/index.ts"],
