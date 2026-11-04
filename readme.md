@@ -87,4 +87,4 @@ packages/core/  # test-only, game-agnostic exhaustive search used by reference/.
 apps/demo/      # demo page covering all packages
 ```
 
-To add a game, follow [docs/adding-a-game.md](docs/adding-a-game.md).
+To add a game, follow [docs/adding-a-game.md](docs/adding-a-game.md). How the games differ (solve strength, chance, information, guarantees, state-space size) is summarized in [docs/game-classification.md](docs/game-classification.md).

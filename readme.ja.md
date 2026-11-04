@@ -87,4 +87,4 @@ packages/core/  # reference/ が使うゲーム非依存の完全読み (テス�
 apps/demo/      # 全パッケージのデモページ
 ```
 
-ゲームの追加手順は [docs/adding-a-game.md](docs/adding-a-game.md) を参照。
+ゲームの追加手順は [docs/adding-a-game.md](docs/adding-a-game.md) を参照。ゲームごとの違い (解析の強さ・偶然・情報・保証の仕方・局面数) は [docs/game-classification.md](docs/game-classification.md) にまとめている。

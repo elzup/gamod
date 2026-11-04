@@ -2,6 +2,26 @@
 
 How to add `packages/<game>` to this monorepo, using `tic-tac-toe` as the reference implementation.
 
+## Edit checklist
+
+Every file to touch, in order. The sections below explain each step.
+
+| # | file | edit | when |
+| --- | --- | --- | --- |
+| 1 | `packages/<game>/` | new package (layout in §1, `package.json` in §2) with `"private": true` and `"version": "0.0.0"` while draft | start |
+| 2 | `readme.md` / `readme.ja.md` (root) | add a row to the Packages table (🚧 draft); remove the game from Candidates if it was listed | start |
+| 3 | `docs/game-classification.md` | add a row to each of the three tables: axes, correctness guarantee, computational profile | start; update as tests and the shipped format settle |
+| 4 | `apps/demo/package.json` | add `"@gamod/<game>": "workspace:*"` to `dependencies`, then `pnpm install` | demo |
+| 5 | `apps/demo/vite.config.ts` | add the `resolve.alias` entry pointing at `packages/<game>/src/index.ts` | demo |
+| 6 | `apps/demo/tsconfig.json` | add the `paths` entry pointing at the same `src/index.ts` | demo |
+| 7 | `apps/demo/src/games/<game>.ts` + `apps/demo/src/main.ts` | write the `Demo` and append it to `demos` (§3) | demo |
+| 8 | `packages/<game>/package.json` | drop `private`, set `version` to `0.1.0` | release |
+| 9 | `packages/<game>/readme*.md`, root `readme*.md` | remove the draft notice; mark the row ✅ | release |
+| 10 | npm (manual) | first publish, then register the trusted publisher (§4) | release |
+| 11 | `.github/workflows/npm-publish.yml` | make it publish `<game>` on `<game>-v*` tags (§4) | release |
+
+Nothing to edit for tests (`vitest.config.ts` globs `packages/*/test/`), build/typecheck (`pnpm -r`), or the demo deploy (`pages.yml` builds whatever `main.ts` lists).
+
 ## 1. Package layout
 
 ```
@@ -39,7 +59,7 @@ Build scripts are plain `tsc` (see tic-tac-toe). Root `pnpm test` picks up `pack
 
 ## 3. Demo
 
-Add `apps/demo/src/games/<game>.ts` exporting a `Demo` (see `games/ticTacToe.ts`), then append it to `demos` in `apps/demo/src/main.ts`. Tabs, language switch, and the readme link are derived automatically. The demo re-implements game progression locally — never import from `reference/`.
+Add `apps/demo/src/games/<game>.ts` exporting a `Demo` (see `games/ticTacToe.ts`), then append it to `demos` in `apps/demo/src/main.ts`. The demo reads each package's `src/` directly (not `lib/`), so it also needs the dependency, the vite alias, and the tsconfig path (checklist 4–6). Tabs, language switch, and the readme link are derived automatically. The demo re-implements game progression locally — never import from `reference/`.
 
 ## 4. Publishing
 
