@@ -19,6 +19,7 @@ export default defineConfig({
       "@gamod/tic-tac-toe": resolve(packages, "tic-tac-toe/src/index.ts"),
       "@gamod/blackjack": resolve(packages, "blackjack/src/index.ts"),
       "@gamod/nim": resolve(packages, "nim/src/index.ts"),
+      "@gamod/hanoi": resolve(packages, "hanoi/src/index.ts"),
     },
   },
 })
