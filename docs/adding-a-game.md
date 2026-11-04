@@ -84,3 +84,5 @@ git push origin refs/tags/<game>-v<version>
 ## 5. Shared search (`@gamod/core`)
 
 `packages/core` holds the game-agnostic exhaustive search (`solve` / `evaluateMoves`). It is private and never published; packages depend on it as a `devDependency` (`"@gamod/core": "workspace:*"`) and import it only from `reference/`. See `packages/nim/reference/solver.ts` for the smallest example of defining a `Game`.
+
+Single-player puzzles whose positions form cycles cannot use `solve` (the depth-first search never terminates on a cycle). Define a `Puzzle` instead and use `distancesTo` (breadth-first search from the goal; every move must be reversible) and `optimalMoves`. See `packages/hanoi/reference/solver.ts`.
