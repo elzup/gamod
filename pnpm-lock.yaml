@@ -35,6 +35,9 @@ importers:
       '@gamod/blackjack':
         specifier: workspace:*
         version: link:../../packages/blackjack
+      '@gamod/hanoi':
+        specifier: workspace:*
+        version: link:../../packages/hanoi
       '@gamod/nim':
         specifier: workspace:*
         version: link:../../packages/nim
@@ -53,6 +56,16 @@ importers:
         version: 4.6.2
 
   packages/core: {}
+
+  packages/hanoi:
+    dependencies:
+      zod:
+        specifier: ^4.6.2
+        version: 4.6.2
+    devDependencies:
+      '@gamod/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/nim:
     dependencies:

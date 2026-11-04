@@ -16,6 +16,7 @@ A monorepo of packages that return the **best move** for a given game state. The
 | --- | --- | --- |
 | [`@gamod/tic-tac-toe`](packages/tic-tac-toe) | Tic-tac-toe | ✅ rule-based strategy (matches exhaustive search on every position) |
 | [`@gamod/nim`](packages/nim) | Nim (normal and misère play) | 🚧 draft (private). Nim-sum strategy; matches exhaustive search on every checked position |
+| [`@gamod/hanoi`](packages/hanoi) | Tower of Hanoi (any position, any target peg) | 🚧 draft (private). Shortest next move in O(n), plus the step-th move of the classic solution in O(1); matches breadth-first search on every checked position |
 | [`@gamod/yacht`](packages/yacht) | Yacht (Clubhouse Games 51 rules) | 🚧 draft (private). Exact expected-score DP works; the shipping format of the value table is undecided |
 | [`@gamod/blackjack`](packages/blackjack) | Blackjack (infinite deck, S17) | 🚧 draft (private). Basic-strategy table; matches exact expected-value play on every hand |
 
@@ -83,7 +84,7 @@ packages/<game>/
   src/        # shipped: schema + strategy (or table)
   reference/  # test-only oracle: rules + exhaustive search
   test/       # exhaustive cross-checks and property tests
-packages/core/  # test-only, game-agnostic exhaustive search used by reference/. Private, never published
+packages/core/  # test-only, game-agnostic exhaustive search (two-player) and breadth-first search (single-player puzzles) used by reference/. Private, never published
 apps/demo/      # demo page covering all packages
 ```
 
