@@ -68,4 +68,5 @@ type State = {
 src/        # 出荷物: schema + 攻略表。シミュレーションも探索も持たない
 reference/  # テスト専用の厳密な期待値ソルバ + Wizard of Odds の表。出荷しない
 test/       # ソルバ・公開表との照合
+slow/       # 数秒かかる検証 (リスプリットの選び方で割る判断が変わらないこと)。pnpm test:slow で回す
 ```

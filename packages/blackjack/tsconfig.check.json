@@ -5,5 +5,11 @@
     "rootDir": ".",
     "types": ["vitest/globals", "node"]
   },
-  "include": ["src/**/*", "reference/**/*", "test/**/*"]
+  "include": [
+    "src/**/*",
+    "reference/**/*",
+    "test/**/*",
+    "slow/**/*",
+    "vitest.slow.config.ts"
+  ]
 }

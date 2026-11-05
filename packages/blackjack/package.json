@@ -42,6 +42,7 @@
     "build:esm": "tsc --module esnext --outDir lib/esm",
     "build:types": "tsc --declaration --emitDeclarationOnly --outDir lib/types",
     "typecheck": "tsc -p tsconfig.check.json",
+    "test:slow": "vitest run --config vitest.slow.config.ts",
     "prepublishOnly": "pnpm build"
   },
   "publishConfig": {

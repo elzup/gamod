@@ -2,9 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   dealerDist,
   doubleEv,
-  type Hand,
   hitEv,
-  keepEv,
   type Rank,
   splitEv,
   standEv,
@@ -16,26 +14,10 @@ import {
   standTable,
   type WizardTable,
 } from "../reference/wizardInfiniteDeck.js"
-
-/** Wizard of Odds の表の列順 */
-const UPCARDS: readonly Rank[] = [2, 3, 4, 5, 6, 7, 8, 9, 10, 1]
+import { handOfLabel, rankOfPairLabel, UPCARDS } from "./wizardLabels.js"
 
 /** 公開表は小数 6 桁で丸められている */
 const DIGITS = 6
-
-/** 単独で各約 2 秒だが、全パッケージ並列時は既定の 5 秒を超えるため余裕を取る */
-const SPLIT_EV_TIMEOUT_MS = 30_000
-
-const handOfLabel = (label: string): Hand => {
-  const soft = /^Soft (\d+)$/.exec(label)
-
-  if (soft) return { hard: Number(soft[1]) - 10, hasAce: true }
-
-  return { hard: Number(label.replace(/^Hard /, "")), hasAce: false }
-}
-
-const rankOfPairLabel = (label: string): Rank =>
-  (label.startsWith("A") ? 1 : Number(label.split(",")[0])) as Rank
 
 const expectTable = (
   table: WizardTable,
@@ -88,48 +70,4 @@ describe("matches the Wizard of Odds infinite-deck tables", () => {
       })
     )
   })
-})
-
-describe("splitEv", () => {
-  it(
-    "is never worse when resplitting is chosen optimally",
-    () => {
-      for (const label of Object.keys(splitTable)) {
-        for (const upcard of UPCARDS) {
-          const pair = rankOfPairLabel(label)
-          const always = splitEv(pair, upcard, {
-            hands: 1,
-            laterPending: 0,
-            resplit: "always",
-          })
-
-          expect(splitEv(pair, upcard)).toBeGreaterThanOrEqual(always)
-        }
-      }
-    },
-    SPLIT_EV_TIMEOUT_MS
-  )
-
-  it(
-    "gives the same split decision whether resplitting is optimal or forced",
-    () => {
-      for (const label of Object.keys(splitTable)) {
-        for (const upcard of UPCARDS) {
-          const pair = rankOfPairLabel(label)
-          const decides = (resplit: "optimal" | "always") => {
-            const context = { hands: 1, laterPending: 0, resplit }
-
-            return (
-              splitEv(pair, upcard, context) > keepEv(pair, upcard, context)
-            )
-          }
-
-          expect(decides("optimal"), `${label} vs ${upcard}`).toBe(
-            decides("always")
-          )
-        }
-      }
-    },
-    SPLIT_EV_TIMEOUT_MS
-  )
 })

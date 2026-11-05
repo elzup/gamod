@@ -68,4 +68,5 @@ type State = {
 src/        # shipped: schema + strategy table. No simulation, no search
 reference/  # test-only exact expected-value solver + Wizard of Odds tables. Not shipped
 test/       # cross-checks against the solver and the published tables
+slow/       # multi-second checks (resplit choice never changes the split decision). Run with pnpm test:slow
 ```
